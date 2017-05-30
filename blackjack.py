@@ -12,7 +12,7 @@ class Card:
         self.suit = suit
 
     def __str__(self):
-        return self.rank + " " + self.color + " " + self.suit
+        return "Card: " + self.rank + ", " + self.color + ", " + self.suit
 
 
 class Deck:
@@ -51,45 +51,93 @@ class Deck:
         shuffle(self.deck)
 
     def draw_card(self):
-        card = self.deck.pop(0)
-        self.used_cards.append(card)
-        return card
+        if len(self.deck) > 0:
+            card = self.deck.pop(0)
+            self.used_cards.append(card)
+            return card
+        else:
+            return None
 
     def print_cards(self):
         for card in self.deck:
             print(card)
 
 
-class BlackJackGame(Deck):
+class BlackJackHand():
+    hand = []
+    hand_total = 0
+    ranks = []
+    values = []
 
-    values = [999, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+    def __init__(self, ranks, values):
+        self.ranks = ranks
+        self.values = values
+
+    def add_card(self, card):
+        self.hand.append(card)
+        self.hand_total += self.rank_to_val(card)
+
+    def clear_hand(self):
+        self.hand = []
+        self.hand_total = 0
+
+    def print_hand(self):
+        if len(self.hand) == 0:
+            print("Hand Empty")
+        else:
+            print("Hand Value: ", self.hand_total)
+            for card in self.hand:
+                print(card)
+
+    def rank_to_val(self, card):
+        inst_values = self.values
+
+        # If the card is an ace, decide if it should be 1 or 11
+        ace_choice = 0
+        if card.rank == "Ace":
+            while(ace_choice == 0):
+                ace_choice = input("Ace Drawn - Choose 1 or 11: ")
+                if ace_choice == "1":
+                    inst_values[0] = 1
+                elif ace_choice == "11":
+                    inst_values[0] = 11
+                else:
+                    print("Choice not valid - please try again")
+                    ace_choice = 0
+
+        return inst_values[self.ranks.index(card.rank)]
+
+
+# Dealer is responsible for both it's own hand and the deck
+class BlackJackDealer(Deck):
+    hand = []
+
+    def __init__(self, ranks, values):
+        self.hand = BlackJackHand(ranks, values)
+        super(BlackJackDealer, self).__init__()
 
     def hit(self):
-        card = self.draw_card()
-        if card.rank == "Ace":
-            ace_choice = input('Ace drawn - 1 or 11?')
-        else:
-            ace_choice = "N/A"
-        value = self.rank_to_value(card, ace_choice)
-        return card, value
-
-    def rank_to_value(self, card, ace_choice):
-        inst_values = self.values
-        # Does the player choose ace to be 1 or 11?
-        if ace_choice == "1":
-            inst_values[0] = 1
-        elif ace_choice == "11":
-            inst_values[0] = 11
-
-        val_index = self.ranks.index(card.rank)
-        return inst_values[val_index]
+        return self.draw_card()
 
 
-new_deck = Deck()
-print(new_deck.draw_card())
-print(len(new_deck.deck))
-print(new_deck.used_cards[0])
-print("----")
+class BlackJackGame():
+    values = [999, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+    ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+             "Jack", "Queen", "King"]
+    dealer = BlackJackDealer(ranks, values)
+    hand1 = BlackJackHand(ranks, values)
+
+
 new_game = BlackJackGame()
-card, value = new_game.hit()
-print(card, value)
+print("Welcome! Starting Game...")
+again = "y"
+while(again == "y"):
+    card = new_game.dealer.hit()
+    BlackJackGame.hand1.add_card(card)
+    BlackJackGame.hand1.print_hand()
+    if BlackJackGame.hand1.hand_total > 21:
+        print("Went over 21! Bust! - Clearing Hand")
+        BlackJackGame.hand1.clear_hand()
+        print("Next Round...")
+    again = input("Draw Again? y/n ")
+    print("-----------")
