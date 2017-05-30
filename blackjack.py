@@ -1,4 +1,5 @@
 from random import shuffle
+import os
 
 # How classes are organized
 # Game
@@ -88,8 +89,6 @@ class Deck:
 
 
 class BlackJackHand():
-    name = ""
-    hand = []
     values = [999, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
     ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10",
              "Jack", "Queen", "King"]
@@ -99,8 +98,8 @@ class BlackJackHand():
         # Needed - otherwise both dealer and hand point to same thing
         self.hand = []
 
-    def __add__(self, card):
-        card_val = self.rank_to_val(card)
+    def add_card(self, card, ace_choice):
+        card_val = self.rank_to_val(card, ace_choice)
         self.hand.append({'card': card, 'card_value': card_val})
 
     @property
@@ -119,123 +118,106 @@ class BlackJackHand():
 
     def print_hand(self):
         if len(self.hand) == 0:
-            print("Hand Empty")
+            print(self.name, "- Hand Empty")
         else:
-            print("Hand Value: ", self.hand_value)
+            print(self.name, "- Hand Value: ", self.hand_value)
             for card in self.hand:
                 print(card['card'])
 
-    def rank_to_val(self, card):
+    def rank_to_val(self, card, ace_choice=0):
         inst_values = self.values
 
-        # If the card is an ace, decide if it should be 1 or 11
-        ace_choice = 0
-        if card.rank == "Ace":
-            while(ace_choice == 0):
-                ace_choice = input("Ace Drawn - Choose 1 or 11: ")
-                if ace_choice == "1":
-                    inst_values[0] = 1
-                elif ace_choice == "11":
-                    inst_values[0] = 11
-                else:
-                    print("Choice not valid - please try again")
-                    ace_choice = 0
+        if ace_choice == "1":
+            inst_values[0] = 1
+        elif ace_choice == "11":
+            inst_values[0] = 11
+
         return inst_values[self.ranks.index(card.rank)]
 
 
-# Dealer is responsible for both it's own hand and the deck
+# Dealer is responsible for dealing cards and deciding winners
 class BlackJackDealer(Deck):
-    hand = []
-
     def __init__(self):
         # Build and shuffle the deck
         super(BlackJackDealer, self).__init__()
         # Initalize dealers hand and deal two cards
-        self.hand = BlackJackHand("Dealer")
-        self.new_hand()
+        self.dealer_hand = BlackJackHand("Dealer")
+        self.player_hand = BlackJackHand("Player")
 
-    def new_hand(self):
-        self.hand.clear_hand()
-        self.hand + self.draw_card()
-        self.hand + self.draw_card()
-
-    def deal_dealer(self):
-        if self.hand.hand_value < 17:
-            card = self.draw_card()
-            print("Dealer has hit...")
-            self.hand + card
-        else:
-            print("Dealer has stayed...")
-
-
-class BlackJackGame():
-    dealer = BlackJackDealer()
-    player = BlackJackHand("Player")
-
-    def __init__(self):
-        print("Welcome to blackjack! Starting game now...")
-        self.start_game()
-
-    def start_game(self):
+    def game_start(self):
         quit = False
         while(not quit):
-            choice = None
-            while choice is None:
-                # Player decision
-                choice = input("Choose to: (Q)uit, (H)it, (S)tand - ")
-                if choice == "Q":
-                    quit = True
-                elif choice == "H":
-                    self.deal_player(self.player)
-                elif choice == "S":
-                    print("No Card Taken - Current Hand Value:",
-                          self.player.hand_value)
-                else:
-                    print("Choice not recognized - please try again")
-                    choice = None
+            print("--------------------")
+            result = self.round_start()
+            if result == "Q":
+                quit = True
+            self.dealer_hand.clear_hand()
+            self.player_hand.clear_hand()
 
-            # Check if player bust
-            if self.player.hand_bust:
-                self.player.print_hand()
-                self.next_round()
-                print("Bust! Player Loses. Starting next round...")
-            # Let dealer decide if it wants to hit
-            self.dealer.deal_dealer()
-            # Check if bust
-            if self.dealer.hand.hand_bust:
-                self.dealer.hand.print_hand()
-                self.next_round()
-                print("Dealer Bust! Player Wins. Starting next round...")
+    def round_start(self):
+        # Dealer & player starts with two cards
+        self.dealer_decision()
+        self.dealer_decision()
+        print("Dealer visible card: ", self.dealer_hand.hand[0]['card'])
+        print("Dealing player cards...")
+        for i in range(2):
+            self.deal_player()
 
-            if self.compare() == "player":
-                self.dealer.hand.print_hand()
-                self.player.print_hand()
-                self.next_round()
-                print("Player Wins! Starting next round...")
-            if choice == "S" and self.compare() == "dealer":
-                self.dealer.hand.print_hand()
-                self.player.print_hand()
-                self.next_round()
-                print("Dealer Wins! Starting next round...")
+        # Does player want to hit?
+        choice = None
+        while(not self.player_hand.hand_bust and choice != "S"):
+            choice = input("Choose to: (Q)uit, (H)it, (S)tand - ")
+            if choice == "Q":
+                print("Ending game...")
+                return "Q"
+            elif choice == "H":
+                self.deal_player()
+            elif choice == "S":
+                print("No Card Taken")
+        # Does dealer want to hit?
+        while(self.dealer_hand.hand_value < 18):
+            self.dealer_decision()
 
-        print("Game Over")
-
-    def next_round(self):
-        self.player.clear_hand()
-        self.dealer.hand.clear_hand()
-
-    def deal_player(self, hand):
-        card = self.dealer.draw_card()
-        # BlackJackGame.hand1.add_card(card)
-        hand + card
-        hand.print_hand()
-
-    def compare(self):
-        print("Compare", self.dealer.hand.hand_value, self.player.hand_value)
-        if self.dealer.hand.hand_value > self.player.hand_value:
-            return "dealer"
+        winner = None
+        if self.player_hand.hand_bust:
+            print("Player Hand Bust! Dealer Wins! Starting next round...")
+            winner = "dealer"
+        elif self.dealer_hand.hand_bust:
+            print("Dealer Hand Bust! Player Wins! Starting next round...")
+            winner = "player"
+        elif self.dealer_hand.hand_value > self.player_hand.hand_value:
+            print("Dealer wins with", self.dealer_hand.hand_value)
+            winner = "dealer"
+        elif self.dealer_hand.hand_value < self.player_hand.hand_value:
+            print("Player wins against", self.dealer_hand.hand_value)
+            winner = "player"
+        elif self.dealer_hand.hand_value == self.player_hand.hand_value:
+            print("Player ties against", self.dealer_hand.hand_value)
+            winner = "tie"
         else:
-            return "player"
+            print("Unexpected Case")
+        print('**************')
+        self.dealer_hand.print_hand()
+        print('**************')
+        return winner
+
+    def deal_player(self):
+        card = self.draw_card()
+        ace_choice = 0
+        # If ace, player decides if 1 or 11
+        if card.rank == "Ace":
+            ace_choice = input("Ace Drawn - 1 or 11?")
+        self.player_hand.add_card(card, ace_choice)
+        self.player_hand.print_hand()
+
+    # Does the dealer stay or hit?
+    def dealer_decision(self):
+        if self.dealer_hand.hand_value < 18:
+            card = self.draw_card()
+            self.dealer_hand.add_card(card, "11")
+        else:
+            pass
 
 
-new_game = BlackJackGame()
+new_game = BlackJackDealer()
+new_game.game_start()
