@@ -191,14 +191,21 @@ class BlackJackDealer(Deck):
                 player_hand_value = max(self.player_hand.potential_values())
                 print("Stand - Using Value:", player_hand_value)
 
-        # Keep hitting until dealer's hand is equal to or greater than target.
-        while(min(self.dealer_hand.potential_values()) < self.hit_target):
-            self.dealer_hand.add_card(self.draw_card())
+        # Dealer will stand on soft 18, hard 17 or higher.
+        # Stop accepting cards if above happens, or the hand goes bust
+        while(True):
+            if max(self.dealer_hand.potential_values()) >= self.hit_target + 1:
+                break  # Soft 18 or higher - do not take cards
+            elif min(self.dealer_hand.potential_values()) == self.hit_target:
+                break  # Hard 17 - do not take cards
+            else:
+                self.dealer_hand.add_card(self.draw_card())
             if self.dealer_hand.bust():
                 break
 
+        # Select best value for dealer hand
         if not self.dealer_hand.bust():
-            dealer_hand_value = min(self.dealer_hand.potential_values())
+            dealer_hand_value = max(self.dealer_hand.potential_values())
         # Who wins?
         winner = None
 
