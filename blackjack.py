@@ -139,9 +139,12 @@ class BlackJackHand():
 
     def print_hand(self):
         if len(self.hand) == 0:
-            print(self.name, "- Hand Empty")
+            print("Hand of", self.name, "- Hand Empty")
         else:
-            print(self.name, "- Possible Value: ", self.potential_values())
+            if len(self.potential_values()) == 0:
+                print("Hand of", self.name, "- Hand is Bust ")
+            else:
+                print("Hand of", self.name, "- Possible Value: ", self.potential_values())
             for card in self.hand:
                 print(card)
 
@@ -167,6 +170,8 @@ class BlackJackDealer(Deck):
                 quit = True
             self.dealer_hand.clear()
             self.player_hand.clear()
+            if not quit:
+                input("Press enter for next round...")
 
     def round_start(self):
         # Dealer & player starts with two cards
@@ -176,6 +181,21 @@ class BlackJackDealer(Deck):
         self.player_hand.add_card(self.draw_card())
         self.player_hand.add_card(self.draw_card())
         self.player_hand.print_hand()
+
+        # Check for natrual (ace + 10 value card)
+        natural = False
+        natural, winner = self.check_natural(self.player_hand, self.dealer_hand)
+        if natural:
+            if winner == "Dealer":
+                print("Dealer's first two cards are natural - Dealer Wins!")
+            elif winner == "Tie":
+                print("Both Dealer's and Player's first two cards are natural- Tie!")
+
+            print('**************')
+            self.dealer_hand.print_hand()
+            print('**************')
+            return winner
+
         # Does player want to hit?
         choice = None
         while(not self.player_hand.bust() and choice != "S"):
@@ -193,7 +213,7 @@ class BlackJackDealer(Deck):
 
         # Dealer will stand on soft 18, hard 17 or higher.
         # Stop accepting cards if above happens, or the hand goes bust
-        while(True):
+        while(True and not self.player_hand.bust()):
             if max(self.dealer_hand.potential_values()) >= self.hit_target + 1:
                 break  # Soft 18 or higher - do not take cards
             elif min(self.dealer_hand.potential_values()) == self.hit_target:
@@ -202,11 +222,29 @@ class BlackJackDealer(Deck):
                 self.dealer_hand.add_card(self.draw_card())
             if self.dealer_hand.bust():
                 break
+        # Who wins?
+        return self.pick_winner(self.player_hand, self.dealer_hand)
 
-        # Select best value for dealer hand
+    # If dealer draws an ace and a 10 value card, the round ends immediatly
+    # If the player also has an ace and a 10 value card, a tie is declared.
+    # Otherwise the dealer wins.
+    def check_natural(self, player_hand, dealer_hand):
+        if max(dealer_hand.potential_values()) == 21:
+            if max(player_hand.potential_values()) == 21:
+                return True, "Tie"
+            else:
+                return True, "Dealer"
+        else:
+            return False, "N/A"
+
+    def pick_winner(self, player_hand, dealer_hand):
+        # Select best value for player and dealer
+        if not self.player_hand.bust():
+            player_hand_value = max(self.player_hand.potential_values())
+
         if not self.dealer_hand.bust():
             dealer_hand_value = max(self.dealer_hand.potential_values())
-        # Who wins?
+
         winner = None
 
         if self.player_hand.bust():
