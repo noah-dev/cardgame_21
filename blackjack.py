@@ -103,10 +103,6 @@ class BlackJackHand():
         card_val = self.rank_to_val(card)
         self.hand.append({'card': card, 'card_value': card_val})
 
-    def add_card(self, card):
-        card_val = self.rank_to_val(card)
-        self.hand.append({'card': card, 'card_value': card_val})
-
     @property
     def hand_value(self):
         hand_value = 0
@@ -156,12 +152,16 @@ class BlackJackDealer(Deck):
         super(BlackJackDealer, self).__init__()
         # Initalize dealers hand and deal two cards
         self.hand = BlackJackHand("Dealer")
-        # self.hand + self.draw_card()
-        # self.hand + self.draw_card()
+        self.new_hand()
 
-    def deal_dealer(self, hand):
-        if self.hand_value < 17:
-            card = self.dealer.draw_card()
+    def new_hand(self):
+        self.hand.clear_hand()
+        self.hand + self.draw_card()
+        self.hand + self.draw_card()
+
+    def deal_dealer(self):
+        if self.hand.hand_value < 17:
+            card = self.draw_card()
             print("Dealer has hit...")
             self.hand + card
         else:
@@ -171,16 +171,6 @@ class BlackJackDealer(Deck):
 class BlackJackGame():
     dealer = BlackJackDealer()
     player = BlackJackHand("Player")
-    print(id(player.hand))
-    print(id(dealer.hand.hand))
-    card = Card("King", "Red", "Clubs")
-    dealer.hand.add_card(card)
-    player.add_card(card)
-
-    print(player.name)
-    player.print_hand()
-    print(dealer.hand.name)
-    dealer.hand.print_hand()
 
     def __init__(self):
         print("Welcome to blackjack! Starting game now...")
@@ -191,6 +181,7 @@ class BlackJackGame():
         while(not quit):
             choice = None
             while choice is None:
+                # Player decision
                 choice = input("Choose to: (Q)uit, (H)it, (S)tand - ")
                 if choice == "Q":
                     quit = True
@@ -202,7 +193,36 @@ class BlackJackGame():
                 else:
                     print("Choice not recognized - please try again")
                     choice = None
+
+            # Check if player bust
+            if self.player.hand_bust:
+                self.player.print_hand()
+                self.next_round()
+                print("Bust! Player Loses. Starting next round...")
+            # Let dealer decide if it wants to hit
+            self.dealer.deal_dealer()
+            # Check if bust
+            if self.dealer.hand.hand_bust:
+                self.dealer.hand.print_hand()
+                self.next_round()
+                print("Dealer Bust! Player Wins. Starting next round...")
+
+            if self.compare() == "player":
+                self.dealer.hand.print_hand()
+                self.player.print_hand()
+                self.next_round()
+                print("Player Wins! Starting next round...")
+            if choice == "S" and self.compare() == "dealer":
+                self.dealer.hand.print_hand()
+                self.player.print_hand()
+                self.next_round()
+                print("Dealer Wins! Starting next round...")
+
         print("Game Over")
+
+    def next_round(self):
+        self.player.clear_hand()
+        self.dealer.hand.clear_hand()
 
     def deal_player(self, hand):
         card = self.dealer.draw_card()
@@ -210,8 +230,9 @@ class BlackJackGame():
         hand + card
         hand.print_hand()
 
-    def compare(self, dealer, player):
-        if dealer.hand_value > player.hand_value:
+    def compare(self):
+        print("Compare", self.dealer.hand.hand_value, self.player.hand_value)
+        if self.dealer.hand.hand_value > self.player.hand_value:
             return "dealer"
         else:
             return "player"
