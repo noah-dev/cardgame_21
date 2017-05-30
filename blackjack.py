@@ -144,7 +144,8 @@ class BlackJackHand():
             if len(self.potential_values()) == 0:
                 print("Hand of", self.name, "- Hand is Bust ")
             else:
-                print("Hand of", self.name, "- Possible Value: ", self.potential_values())
+                print("Hand of", self.name, "- Possible Value: ",
+                      self.potential_values())
             for card in self.hand:
                 print(card)
 
@@ -184,12 +185,14 @@ class BlackJackDealer(Deck):
 
         # Check for natrual (ace + 10 value card)
         natural = False
-        natural, winner = self.check_natural(self.player_hand, self.dealer_hand)
+        natural, winner = self.check_natural(self.player_hand,
+                                             self.dealer_hand)
         if natural:
             if winner == "Dealer":
                 print("Dealer's first two cards are natural - Dealer Wins!")
             elif winner == "Tie":
-                print("Both Dealer's and Player's first two cards are natural- Tie!")
+                print("Both Dealer's and Player's first two cards",
+                      "are natural - Tie!")
 
             print('**************')
             self.dealer_hand.print_hand()
