@@ -1,5 +1,4 @@
 from random import shuffle
-import os
 
 # How classes are organized
 # Game
@@ -24,6 +23,15 @@ import os
 # card is a digital representation of a single card
 
 
+class Global_21_Const:
+    ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+             "Jack", "Queen", "King"]
+    suits = ["Clubs, Diamonds, Hearts, Spades"]
+    values = [999, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+
+
+# Digital representation of a card.
+# Needs a rank (e.g. "King"), a color (e.g. "Red"), and a suit (e.g. "Clubs")
 class Card:
     rank = ""
     color = ""
@@ -38,14 +46,14 @@ class Card:
         return "Card: " + self.rank + ", " + self.color + ", " + self.suit
 
 
+# Build a single, shuffled deck
 class Deck:
-    deck = []
-    used_cards = []
-    ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-             "Jack", "Queen", "King"]
-    suits = ["Clubs, Diamonds, Hearts, Spades"]
+    ranks = Global_21_Const.ranks
+    suits = Global_21_Const.suits
 
     def __init__(self):
+        self.deck = []
+        self.used_cards = []
         # Build unshuffled_deck deck
         self.unshuffled_deck()
         # Shuffle deck
@@ -85,17 +93,21 @@ class Deck:
         for card in self.deck:
             print(card)
 
+# Digital equivalent of a hand of cards. Responsible for managing cards and
+# figuring out valid values (e.g. an Ace card + 6 card can be 7 or 17)
+
 
 class BlackJackHand():
-    values = [999, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
-    ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-             "Jack", "Queen", "King"]
+    values = Global_21_Const.values
+    ranks = Global_21_Const.ranks
 
     def __init__(self, name):
+        # Name of the hand's owner (e.g. "Dealer" or "Player")
         self.name = name
-        # Needed - otherwise both dealer and hand point to same thing
+        # Holds the cards - hand is initially empty
         self.hand = []
 
+    # Add a card object to the hand
     def add_card(self, card):
         self.hand.append(card)
 
@@ -131,12 +143,17 @@ class BlackJackHand():
         values = [value for value in values if value <= 21]
         return values
 
+    # Call to figure out if the hand is bust.
+    # potential_values() ignores hand values over 21.
+    # So if the list is empty, the hand's value is over 21 (Bust)
     def bust(self):
         return len(self.potential_values()) == 0
 
+    # Set the hand to an empty set, clearing the cards
     def clear(self):
         self.hand = []
 
+    # Print out every card in the hand to stdin.
     def print_hand(self):
         if len(self.hand) == 0:
             print("Hand of", self.name, "- Hand Empty")
@@ -169,8 +186,14 @@ class BlackJackDealer(Deck):
             result = self.round_start()
             if result == "Q":
                 quit = True
+
+            # Clear the hand after a round is complete
             self.dealer_hand.clear()
             self.player_hand.clear()
+
+            # Rebuild and reshuffle deck after each round
+
+            # If the game is over, do not prompt for next round
             if not quit:
                 input("Press enter for next round...")
 
@@ -178,9 +201,11 @@ class BlackJackDealer(Deck):
         # Dealer & player starts with two cards
         self.dealer_hand.add_card(self.draw_card())
         self.dealer_hand.add_card(self.draw_card())
+        self.player_hand.add_card(self.draw_card())
+        self.player_hand.add_card(self.draw_card())
+
+        # Show dealer's face up card and player's hand
         print("Dealer visible card: ", self.dealer_hand.hand[0])
-        self.player_hand.add_card(self.draw_card())
-        self.player_hand.add_card(self.draw_card())
         self.player_hand.print_hand()
 
         # Check for natrual (ace + 10 value card)
@@ -271,7 +296,3 @@ class BlackJackDealer(Deck):
         self.dealer_hand.print_hand()
         print('**************')
         return winner
-
-
-new_game = BlackJackDealer()
-new_game.game_start()
