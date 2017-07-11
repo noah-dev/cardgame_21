@@ -5,7 +5,7 @@ This is one of my older side projects. I wanted to practice my OOP skills and fi
 * How? Take a card and imagine each entity as an object. Each card is an object, with rank & suit. Each deck is an object made of 52 card objects. Each hand is made of several card objects that pull from the deck object. 
 * What? Though the final result is nothing spectacular, it was a great learning experience. I become more confident with OOP in python and I learned new syntax and functions. Also, pointers finally make sense to me (not just in theory). 
 
-![demo](demo.png)
+![demo](demo.gif)
 
 # Game Rules
 There is the player and the dealer. The dealer pulls cards from a shuffled deck for the player's hand and the dealer's hand. Each card has a value. The objective is to attain a hand with a cumulative value as close to 21, without going over; whoever is closer wins the round. Both player and dealer initially start with two cards and may pull more cards for their hands. 
