@@ -1,25 +1,17 @@
-"""Provides code to start a simplified version of 21/Blackjack.
+"""Provides code to start a simplified version of 21
     Example:
         import card_21
         game_inst = card_21.Dealer()
         game_inst.game_start()
 """
 # How classes are organized
-# Game
-# |--dealer
-# |  |--hand (hand class)
-# |  |--deck
-# |     |--card
-# |--player hand 1 (hand class)
-# |--player hand 2 (hand class)
-# |--etc...
-# game is responsible for managing the transfer of cards between the deck
-# and player hands.
-# dealer is responsible for managing it's own hand and the deck
-# hand class is responsible for managing a hand of cards for it's owner
-# (owner being the dealer or a player)
-# deck is a digital representation of a standard 52 card deck
-# card is a digital representation of a single card
+# dealer         (Dealer class)
+# |--hand        (Hand class)
+# |  |--card(s)  (Card class)
+# |--deck        (Deck class)
+# |  |--card(s)  (Card class)
+# |--player hand (Hand class)
+#    |--card(s)  (Hand class)
 
 # Used by Deck for shuffle cards
 import random
