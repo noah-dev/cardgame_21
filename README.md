@@ -31,6 +31,7 @@ Imagine an actual game. The dealer is responsible for the deck, shuffling it, an
 * The dealer will pull a card from the top of the deck and give it to the dealer's hand. 
 * Both player & dealer will reveal their hands. The dealer will declare the winner based on the results. 
 
+![diagram](diagram.PNG)
 
 **There is the dealer, which is a Dealer Class. Dealer class is responsible for:**
 * Giving cards to the player's hand and managing it's own hand. Both player & dealer hand are objects of the **Hand class**.
@@ -53,5 +54,3 @@ Imagine an actual game. The dealer is responsible for the deck, shuffling it, an
 **There is the card, which is a Card class. Card class is responsible for:**
 * Holding the attributes of the card. (Rank & Suit)
 * Determining if it equal to another card. (Same Rank & Same Suit)
-
-![diagram](diagram.PNG)
