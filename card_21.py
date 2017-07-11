@@ -4,6 +4,8 @@
         game_inst = card_21.Dealer()
         game_inst.game_start()
 """
+# Documentation incomplete. Most of the comments are there, but the doc strings need completing.
+
 # How classes are organized
 # dealer         (Dealer class)
 # |--hand        (Hand class)

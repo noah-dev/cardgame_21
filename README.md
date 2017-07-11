@@ -54,4 +54,4 @@ Imagine an actual game. The dealer is responsible for the deck, shuffling it, an
 * Holding the attributes of the card. (Rank & Suit)
 * Determining if it equal to another card. (Same Rank & Same Suit)
 
-![diagram](diagram.png)
+![diagram](diagram.PNG)
