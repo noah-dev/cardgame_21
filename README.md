@@ -3,10 +3,11 @@
 This is one of my older side projects. I wanted to practice my OOP skills and figured a card-game would make for good practice. 
 * Why? Though I was understood in OOP in principle, I wanted to put my understanding & skills to the test.
 * How? Take a card and imagine each entity as an object. Each card is an object, with rank & suit. Each deck is an object made of 52 card objects. Each hand is made of several card objects that pull from the deck object. 
-* What? Though the final result is nothing spectacular, it was a great learning experience. I become more confident with OOP in python and I learned new syntax and functions. Also, pointers finally make sense to me (not just in theory). 
+* What? Though the result is nothing spectacular, it was a great learning experience. I become more confident with OOP in python and I learned new syntax and functions. Also, pointers finally make sense to me (not just in theory). 
 
 # Takeaways:
-* It was an interesting exercise in dividing up responsibilities across the different classes. Though I didn't realize it, my main philsophy was to clean abstraction. Sure, in real life the Dealer is responsible for shuffling the deck. But it's much cleaner for that method to fall under the deck, as it is responsible for managing the cards. 
+* Asides what has been mentioned, I also had a good opportunity to play with Python's magic methods (also called dunder). Having that experience was helpful, moving forward into my Django projects. 
+* It was an interesting exercise in dividing up responsibilities across the different classes. Though I didn't realize it, my main philosophy was to get clean abstraction. Sure, in real life the Dealer is responsible for shuffling the deck. But it's much cleaner for that method to fall under the deck, as it is responsible for managing the cards. 
 * Nesting classes makes for cumbersome code. Before this, I rarely had to nest a custom class in another custom class. In this code, it's three levels. It was annoying, as changes to one class could have major impacts on levels above/below it. OOP is important, and I wonder if there's a more elegant way to manage changes.
 
 ![demo](demo.gif)
@@ -38,7 +39,7 @@ Imagine an actual game. The dealer is responsible for the deck, shuffling it, an
 ![diagram](diagram.PNG)
 
 **There is the dealer, which is a Dealer Class. Dealer class is responsible for:**
-* Giving cards to the player's hand and managing it's own hand. Both player & dealer hand are objects of the **Hand class**.
+* Giving cards to the player's hand and managing its own hand. Both player & dealer hand are objects of the **Hand class**.
 * Managing the deck of cards, which is a **Deck class**. 
 * Overseeing the game and declaring winner/loser. 
 
