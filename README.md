@@ -5,6 +5,10 @@ This is one of my older side projects. I wanted to practice my OOP skills and fi
 * How? Take a card and imagine each entity as an object. Each card is an object, with rank & suit. Each deck is an object made of 52 card objects. Each hand is made of several card objects that pull from the deck object. 
 * What? Though the final result is nothing spectacular, it was a great learning experience. I become more confident with OOP in python and I learned new syntax and functions. Also, pointers finally make sense to me (not just in theory). 
 
+# Takeaways:
+* It was an interesting exercise in dividing up responsibilities across the different classes. Though I didn't realize it, my main philsophy was to clean abstraction. Sure, in real life the Dealer is responsible for shuffling the deck. But it's much cleaner for that method to fall under the deck, as it is responsible for managing the cards. 
+* Nesting classes makes for cumbersome code. Before this, I rarely had to nest a custom class in another custom class. In this code, it's three levels. It was annoying, as changes to one class could have major impacts on levels above/below it. OOP is important, and I wonder if there's a more elegant way to manage changes.
+
 ![demo](demo.gif)
 
 # Game Rules
